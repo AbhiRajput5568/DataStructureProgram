@@ -16,42 +16,41 @@ using namespace std;
 struct Employee
 {
     int SSN;
-    string name;
-    string dept;
-    string designation;
+    string name, dept, designation, phNo;
     double sal;
-    string phNo;
-    Employee *prev;
-    Employee *next;
+    Employee *prev, *next;
 };
 
 Employee *head = nullptr;
 
+void inputEmployeeDetails(Employee *emp)
+{
+    cout << "Enter SSN: ";
+    cin >> emp->SSN;
+    cin.ignore();
+    cout << "Enter Name: ";
+    getline(cin, emp->name);
+    cout << "Enter Department: ";
+    getline(cin, emp->dept);
+    cout << "Enter Designation: ";
+    getline(cin, emp->designation);
+    cout << "Enter Salary: ";
+    cin >> emp->sal;
+    cin.ignore();
+    cout << "Enter Phone Number: ";
+    getline(cin, emp->phNo);
+}
+
 void insertAtBeginning()
 {
     Employee *newEmployee = new Employee;
-    cout << "Enter SSN: ";
-    cin >> newEmployee->SSN;
-    cin.ignore(); // to consume the newline character left by cin
-    cout << "Enter Name: ";
-    getline(cin, newEmployee->name);
-    cout << "Enter Department: ";
-    getline(cin, newEmployee->dept);
-    cout << "Enter Designation: ";
-    getline(cin, newEmployee->designation);
-    cout << "Enter Salary: ";
-    cin >> newEmployee->sal;
-    cin.ignore();
-    cout << "Enter Phone Number: ";
-    getline(cin, newEmployee->phNo);
-
+    inputEmployeeDetails(newEmployee);
     newEmployee->prev = nullptr;
     newEmployee->next = head;
 
     if (head != nullptr)
-    {
         head->prev = newEmployee;
-    }
+
     head = newEmployee;
     cout << "Employee added at the beginning.\n";
 }
@@ -59,24 +58,10 @@ void insertAtBeginning()
 void insertAtEnd()
 {
     Employee *newEmployee = new Employee;
-    cout << "Enter SSN: ";
-    cin >> newEmployee->SSN;
-    cin.ignore();
-    cout << "Enter Name: ";
-    getline(cin, newEmployee->name);
-    cout << "Enter Department: ";
-    getline(cin, newEmployee->dept);
-    cout << "Enter Designation: ";
-    getline(cin, newEmployee->designation);
-    cout << "Enter Salary: ";
-    cin >> newEmployee->sal;
-    cin.ignore();
-    cout << "Enter Phone Number: ";
-    getline(cin, newEmployee->phNo);
-
+    inputEmployeeDetails(newEmployee);
     newEmployee->next = nullptr;
 
-    if (head == nullptr)
+    if (!head)
     {
         newEmployee->prev = nullptr;
         head = newEmployee;
@@ -84,10 +69,8 @@ void insertAtEnd()
     else
     {
         Employee *temp = head;
-        while (temp->next != nullptr)
-        {
+        while (temp->next)
             temp = temp->next;
-        }
         temp->next = newEmployee;
         newEmployee->prev = temp;
     }
@@ -106,28 +89,13 @@ void insertAtMiddle()
     }
 
     Employee *newEmployee = new Employee;
-    cout << "Enter SSN: ";
-    cin >> newEmployee->SSN;
-    cin.ignore();
-    cout << "Enter Name: ";
-    getline(cin, newEmployee->name);
-    cout << "Enter Department: ";
-    getline(cin, newEmployee->dept);
-    cout << "Enter Designation: ";
-    getline(cin, newEmployee->designation);
-    cout << "Enter Salary: ";
-    cin >> newEmployee->sal;
-    cin.ignore();
-    cout << "Enter Phone Number: ";
-    getline(cin, newEmployee->phNo);
+    inputEmployeeDetails(newEmployee);
 
     Employee *temp = head;
     for (int i = 1; temp != nullptr && i < position; i++)
-    {
         temp = temp->next;
-    }
 
-    if (temp == nullptr)
+    if (!temp)
     {
         cout << "Position out of bounds.\n";
         delete newEmployee;
@@ -136,24 +104,18 @@ void insertAtMiddle()
 
     newEmployee->prev = temp->prev;
     newEmployee->next = temp;
-
-    if (temp->prev != nullptr)
-    {
+    if (temp->prev)
         temp->prev->next = newEmployee;
-    }
     temp->prev = newEmployee;
-
     if (position == 1)
-    {
         head = newEmployee;
-    }
 
     cout << "Employee inserted in the middle.\n";
 }
 
 void display()
 {
-    if (head == nullptr)
+    if (!head)
     {
         cout << "No employees to display.\n";
         return;
@@ -162,7 +124,7 @@ void display()
     Employee *temp = head;
     int count = 0;
     cout << "\nEmployee Records:\n";
-    while (temp != nullptr)
+    while (temp)
     {
         cout << "SSN: " << temp->SSN << ", Name: " << temp->name << ", Dept: " << temp->dept
              << ", Designation: " << temp->designation << ", Salary: " << temp->sal
@@ -173,52 +135,37 @@ void display()
     cout << "Total Employees: " << count << endl;
 }
 
-void deleteFirst()
+void deleteEmployee(Employee *target)
 {
-    if (head == nullptr)
-    {
-        cout << "No employee to delete.\n";
+    if (target == nullptr)
         return;
-    }
-
-    Employee *temp = head;
-    head = head->next;
-
-    if (head != nullptr)
-    {
-        head->prev = nullptr;
-    }
-
-    delete temp;
-    cout << "First employee deleted.\n";
+    if (target->prev)
+        target->prev->next = target->next;
+    if (target->next)
+        target->next->prev = target->prev;
+    if (target == head)
+        head = target->next;
+    delete target;
 }
 
+void deleteFirst()
+{
+    if (head)
+        deleteEmployee(head);
+    else
+        cout << "No employee to delete.\n";
+}
 void deleteLast()
 {
-    if (head == nullptr)
-    {
+    if (!head)
         cout << "No employee to delete.\n";
-        return;
-    }
-
-    Employee *temp = head;
-    while (temp->next != nullptr)
+    else
     {
-        temp = temp->next;
+        Employee *temp = head;
+        while (temp->next)
+            temp = temp->next;
+        deleteEmployee(temp);
     }
-
-    if (temp->prev != nullptr)
-    {
-        temp->prev->next = nullptr;
-    }
-
-    if (temp == head)
-    {
-        head = nullptr;
-    }
-
-    delete temp;
-    cout << "Last employee deleted.\n";
 }
 
 void deleteNth()
@@ -235,32 +182,12 @@ void deleteNth()
 
     Employee *temp = head;
     for (int i = 1; temp != nullptr && i < position; i++)
-    {
         temp = temp->next;
-    }
 
-    if (temp == nullptr)
-    {
+    if (!temp)
         cout << "Position out of bounds.\n";
-        return;
-    }
-
-    if (temp->prev != nullptr)
-    {
-        temp->prev->next = temp->next;
-    }
-    if (temp->next != nullptr)
-    {
-        temp->next->prev = temp->prev;
-    }
-
-    if (temp == head)
-    {
-        head = temp->next;
-    }
-
-    delete temp;
-    cout << "Employee at position " << position << " deleted.\n";
+    else
+        deleteEmployee(temp);
 }
 
 int main()
